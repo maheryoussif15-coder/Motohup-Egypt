@@ -1,20 +1,73 @@
-import {useEffect,useState} from 'react'
-import {Link} from 'react-router-dom'
-import {sb} from '../lib'
-const IMG='https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=2070&auto=format&fit=crop'
-export default function Home(){
- const [cats,setCats]=useState([])
- useEffect(()=>{sb.from('categories').select('*').order('sort').then(({data})=>setCats(data||[]))},[])
- return <>
-  <section className="relative h-[80vh] min-h-[500px] overflow-hidden"><div className="absolute inset-0 bg-cover bg-center" style={{backgroundImage:`url('${IMG}')`}}/><div className="absolute inset-0 bg-black/60"/>
-   <div className="relative z-10 h-full flex items-center"><div className="max-w-7xl mx-auto px-4 w-full">
-    <h1 className="text-5xl md:text-7xl font-black leading-[0.95] tracking-tight">YOUR RIDE.<br/>YOUR <span className="text-red-600">CHOICE.</span></h1>
-    <p className="mt-6 text-lg md:text-xl text-zinc-300 max-w-xl font-medium">Explore the Best in Motorcycles, ATV, UTV, and Marine.</p>
-    <a href="#cats" className="inline-flex mt-8 bg-red-600 hover:bg-red-700 font-bold uppercase tracking-wider px-8 py-4 rounded-lg">View All Models</a></div></div></section>
-  <section id="cats" className="py-16"><div className="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-   {cats.map(c=><Link key={c.id} to={`/c/${c.slug}`} className="group relative rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-red-600/50 transition-all">
-    <div className="aspect-[3/4] overflow-hidden"><img src={c.image} alt={c.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/></div>
-    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"/>
-    <div className="absolute bottom-0 left-0 right-0 p-5"><h3 className="text-2xl font-black uppercase tracking-wide mb-3">{c.name}</h3><span className="inline-flex bg-red-600 group-hover:bg-red-700 font-bold uppercase text-xs px-4 py-2 rounded-md">Shop Now →</span></div></Link>)}
-  </div></section></>
+import { useEffect, useState } from 'react'
+import { sb } from '../lib'
+import '../home.css'
+
+import Intro from '../components/home/Intro'
+import HomeNavbar from '../components/home/HomeNavbar'
+import Hero from '../components/home/Hero'
+import HomeCategories from '../components/home/HomeCategories'
+import FeaturedProducts from '../components/home/FeaturedProducts'
+import WhyUs from '../components/home/WhyUs'
+import HomeAbout from '../components/home/HomeAbout'
+import HomeContact from '../components/home/HomeContact'
+import HomeFooter from '../components/home/HomeFooter'
+import { WhatsAppFloat, BackToTop } from '../components/home/FloatingActions'
+import useReveal from '../components/home/useReveal'
+
+/*
+ * Public home page — the MOTO HUB design converted to React.
+ * The 5 categories are static (fixed by design); products come from the
+ * existing Supabase products table. WhatsApp actions use the shared
+ * wa() helper (wa.me/201061921764).
+ */
+export default function Home() {
+  const [products, setProducts] = useState([])
+  const [filter, setFilter] = useState('all')
+  const [introDone, setIntroDone] = useState(false)
+
+  useEffect(() => {
+    // Scope document-level styling (scrollbar) to the home page only
+    document.body.classList.add('mh-active')
+
+    sb.from('products')
+      .select('*,categories(name,slug)')
+      .eq('hidden', false)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => setProducts(data || []))
+
+    return () => document.body.classList.remove('mh-active')
+  }, [])
+
+  // Re-run reveal animations once data or the filter has changed
+  useReveal([products, filter, introDone])
+
+  // "Explore" on a category card / footer link: set filter + scroll to featured
+  function handleExplore(slug) {
+    setFilter(slug)
+  }
+
+  return (
+    <div className="mh-home">
+      {!introDone && <Intro onDone={() => setIntroDone(true)} />}
+
+      <a className="skip-link" href="#home" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0 }) }}>
+        Skip to content
+      </a>
+
+      <HomeNavbar />
+
+      <div>
+        <Hero />
+        <HomeCategories onExplore={handleExplore} />
+        <FeaturedProducts products={products} filter={filter} onFilter={setFilter} />
+        <WhyUs />
+        <HomeAbout />
+        <HomeContact />
+      </div>
+
+      <HomeFooter onExplore={handleExplore} />
+      <WhatsAppFloat />
+      <BackToTop />
+    </div>
+  )
 }
