@@ -3,7 +3,7 @@ import {Link,useParams} from 'react-router-dom'
 import {sb,wa} from '../lib'
 export default function Product(){
  const {id}=useParams(),[p,setP]=useState(null),[i,setI]=useState(0)
- useEffect(()=>{sb.from('products').select('*,categories(name,slug)').eq('id',id).single().then(({data})=>setP(data))},[id])
+ useEffect(()=>{window.scrollTo(0,0);sb.from('products').select('*,categories(name,slug)').eq('id',id).single().then(({data})=>setP(data))},[id])
  if(!p)return <p className="p-10 text-zinc-400">Loading...</p>
  const specs=(p.specs||'').split('\n').filter(Boolean).map(l=>{const k=l.indexOf(':');return k<0?[l,'']:[l.slice(0,k),l.slice(k+1)]})
  const msg=`Hello, I'm interested in: ${p.name}${p.price?' ('+p.price+')':''}\n${window.location.href}`

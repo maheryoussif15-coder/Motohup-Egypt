@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { wa } from '../../lib'
 import { WhatsIcon } from './icons'
 
@@ -56,12 +57,12 @@ export default function FeaturedProducts({ products, filter, onFilter }) {
           <div className="products-grid">
             {visible.map((p, i) => (
               <article className="product-card is-popping" data-category={p.categories?.slug} data-reveal data-reveal-delay={i % 4} key={p.id}>
-                <figure className="product-card__media">
+                <Link to={`/p/${p.id}`} className="product-card__link product-card__link--media"><figure className="product-card__media">
                   <img src={p.images?.[0] || PLACEHOLDER} alt={p.name} loading="lazy" width="700" height="500" />
                   <span className="product-card__tag">{p.categories?.name || 'Product'}</span>
-                </figure>
+                </figure></Link>
                 <div className="product-card__body">
-                  <h3>{p.name}</h3>
+                  <h3><Link to={`/p/${p.id}`} className="product-card__link">{p.name}</Link></h3>
                   <p className="product-card__spec">{(p.specs || '').split('\n')[0] || ''}</p>
                   <div className="product-card__foot">
                     <span className="product-card__price">{p.price || ''}</span>

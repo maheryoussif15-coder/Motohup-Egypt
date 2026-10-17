@@ -1180,3 +1180,8 @@ body.mh-active { scrollbar-color: var(--purple) var(--bg); scrollbar-width: thin
 .logo__egypt::before, .logo__egypt::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #a855f7); }
 .logo__egypt::after { background: linear-gradient(270deg, transparent, #a855f7); }
 .logo__tag { margin-top: 5px; font-family: var(--font-body); font-size: 0.45rem; letter-spacing: 0.3em; color: #d1d5db; font-weight: 600; white-space: nowrap; }
+
+/* Clickable product cards -> product details page */
+.product-card__link { color: inherit; text-decoration: none; cursor: pointer; }
+.product-card__link--media { display: block; }
+.product-card__body h3 .product-card__link:hover { color: var(--glow); }
