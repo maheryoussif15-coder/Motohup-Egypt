@@ -1170,3 +1170,13 @@ body.mh-active { scrollbar-color: var(--purple) var(--bg); scrollbar-width: thin
   }
   [data-reveal] { opacity: 1; transform: none; }
 }
+
+/* ---------- LOGO (text-based) ---------- */
+.logo { display: inline-flex; flex-direction: column; align-items: center; line-height: 1; font-family: var(--font-display); font-style: italic; font-weight: 900; }
+.logo__name { display: flex; font-size: 1.7rem; letter-spacing: 1px; font-weight: 900; }
+.logo__moto { font-style: italic; background: linear-gradient(180deg, #fff 0%, #9ca3af 55%, #e5e7eb 100%); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: 2px; }
+.logo__hub { font-style: italic; background: linear-gradient(180deg, #c084fc, #7c3aed); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.7)); padding-right: 2px; }
+.logo__egypt { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 5px; font-size: 0.62rem; letter-spacing: 0.45em; color: #e5e7eb; font-weight: 700; }
+.logo__egypt::before, .logo__egypt::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #a855f7); }
+.logo__egypt::after { background: linear-gradient(270deg, transparent, #a855f7); }
+.logo__tag { margin-top: 5px; font-family: var(--font-body); font-size: 0.45rem; letter-spacing: 0.3em; color: #d1d5db; font-weight: 600; white-space: nowrap; }

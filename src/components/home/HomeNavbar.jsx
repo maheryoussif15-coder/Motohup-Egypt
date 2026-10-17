@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { scrollToId } from './util'
+import Logo from './Logo'
 
 const LINKS = [
   { id: 'home', label: 'Home' },
@@ -42,7 +43,7 @@ export default function HomeNavbar() {
     <header className={`navbar${scrolled ? ' is-scrolled' : ''}`}>
       <nav className="nav mh-container" aria-label="Main navigation">
         <a href="#home" className="nav__logo" aria-label="MOTO HUB home" onClick={(e) => go(e, 'home')}>
-          <img src="/logo.png" alt="MOTO HUB" style={{ height: '45px', width: 'auto', display: 'block' }} />
+          <Logo />
         </a>
 
         <ul className={`nav__menu${open ? ' is-open' : ''}`}>

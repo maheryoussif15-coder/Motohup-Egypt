@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { wa } from '../../lib'
 import { scrollToId } from './util'
+import Logo from './Logo'
 import { WhatsIcon, InstaIcon } from './icons'
 
 const INSTAGRAM_URL = 'https://www.instagram.com/hossam_said94?stkn=b2plaGlzZjdtaXVp'
@@ -44,7 +45,7 @@ export default function HomeFooter({ onExplore }) {
           {/* Brand */}
           <div className="footer__brand">
             <a href="#home" className="nav__logo" onClick={(e) => { e.preventDefault(); scrollToId('home') }}>
-              MOTO<span>HUB</span>
+              <Logo />
             </a>
             <p>
               Your premium destination for motorcycles, ATVs, UTVs, marine
