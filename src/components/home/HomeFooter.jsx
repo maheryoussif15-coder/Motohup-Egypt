@@ -110,7 +110,7 @@ export default function HomeFooter({ onExplore }) {
         </div>
 
         <div className="footer__bottom">
-          <p>&copy; 2025 MOTO HUB. All rights reserved. | Setup by ABO-MAHER</p>
+          <p>&copy; 2025 MOTO HUB. All rights reserved.</p>
         </div>
       </div>
     </footer>

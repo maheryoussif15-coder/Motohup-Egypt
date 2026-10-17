@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { sb } from '../lib'
 import '../home.css'
 
-import Intro from '../components/home/Intro'
 import HomeNavbar from '../components/home/HomeNavbar'
 import Hero from '../components/home/Hero'
 import HomeCategories from '../components/home/HomeCategories'
@@ -23,7 +22,6 @@ import useReveal from '../components/home/useReveal'
 export default function Home() {
   const [products, setProducts] = useState([])
   const [filter, setFilter] = useState('all')
-  const [introDone, setIntroDone] = useState(false)
 
   useEffect(() => {
     // Scope document-level styling (scrollbar) to the home page only
@@ -39,7 +37,7 @@ export default function Home() {
   }, [])
 
   // Re-run reveal animations once data or the filter has changed
-  useReveal([products, filter, introDone])
+  useReveal([products, filter])
 
   // "Explore" on a category card / footer link: set filter + scroll to featured
   function handleExplore(slug) {
@@ -48,8 +46,6 @@ export default function Home() {
 
   return (
     <div className="mh-home">
-      {!introDone && <Intro onDone={() => setIntroDone(true)} />}
-
       <a className="skip-link" href="#home" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0 }) }}>
         Skip to content
       </a>
