@@ -6,15 +6,6 @@ import { WhatsIcon, InstaIcon } from './icons'
 
 const INSTAGRAM_URL = 'https://www.instagram.com/hossam_said94?stkn=b2plaGlzZjdtaXVp'
 
-/* Static 5-category list (matches the categories section) */
-const CATEGORIES = [
-  { slug: 'motorcycles', label: 'Motorcycles' },
-  { slug: 'atv', label: 'ATV' },
-  { slug: 'utv', label: 'UTV' },
-  { slug: 'marine', label: 'Marine' },
-  { slug: 'parts', label: 'Accessories & Spare Parts' },
-]
-
 const QUICK_LINKS = [
   { id: 'home', label: 'Home' },
   { id: 'categories', label: 'Categories' },
@@ -24,7 +15,7 @@ const QUICK_LINKS = [
 ]
 
 /* Home page footer: brand, quick links, static categories, newsletter, socials */
-export default function HomeFooter({ onExplore }) {
+export default function HomeFooter({ categories = [], onExplore }) {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState('')
 
@@ -48,8 +39,8 @@ export default function HomeFooter({ onExplore }) {
               <Logo />
             </a>
             <p>
-              Your premium destination for motorcycles, ATVs, UTVs, marine
-              watercraft and genuine spare parts. Ride beyond limits.
+              Your premium destination for motorcycles, cars, ATVs, UTVs, marine
+              watercraft, riding gear and genuine spare parts. Ride beyond limits.
             </p>
             <div className="contact__socials">
               <a href={wa('Hello MOTO HUB')} target="_blank" rel="noreferrer" className="social-btn social-btn--wa" aria-label="WhatsApp">
@@ -73,17 +64,17 @@ export default function HomeFooter({ onExplore }) {
             </ul>
           </nav>
 
-          {/* Categories (static, applies filter + scrolls to featured) */}
+          {/* Categories (from Supabase, applies filter + scrolls to featured) */}
           <nav className="footer__col" aria-label="Categories">
             <h4>Categories</h4>
             <ul>
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <li key={c.slug}>
                   <a
                     href="#featured"
                     onClick={(e) => { e.preventDefault(); onExplore(c.slug); scrollToId('featured') }}
                   >
-                    {c.label}
+                    {c.name}
                   </a>
                 </li>
               ))}

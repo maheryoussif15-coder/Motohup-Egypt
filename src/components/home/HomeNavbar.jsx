@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { scrollToId } from './util'
 import Logo from './Logo'
 
@@ -11,12 +12,13 @@ const LINKS = [
 ]
 
 /* Sticky glassmorphism navbar for the home page */
-export default function HomeNavbar() {
-  const [scrolled, setScrolled] = useState(false)
+export default function HomeNavbar({ inner = false }) {
+  const [scrolled, setScrolled] = useState(inner)
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState('home')
 
   useEffect(() => {
+    if (inner) return undefined
     const onScroll = () => {
       setScrolled(window.scrollY > 30)
       // Highlight the section currently in view
@@ -31,7 +33,7 @@ export default function HomeNavbar() {
     window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [inner])
 
   const go = (e, id) => {
     e.preventDefault()
@@ -39,27 +41,37 @@ export default function HomeNavbar() {
     scrollToId(id)
   }
 
+  /* On inner pages (category / product) the links go back to the matching home section */
+  const link = (id, label, cls) =>
+    inner ? (
+      <Link to={id === 'home' ? '/' : `/#${id}`} className={cls} onClick={() => setOpen(false)}>{label}</Link>
+    ) : (
+      <a href={`#${id}`} className={cls} onClick={(e) => go(e, id)}>{label}</a>
+    )
+
   return (
     <header className={`navbar${scrolled ? ' is-scrolled' : ''}`}>
       <nav className="nav mh-container" aria-label="Main navigation">
-        <a href="#home" className="nav__logo" aria-label="MOTO HUB home" onClick={(e) => go(e, 'home')}>
-          <Logo />
-        </a>
+        {inner ? (
+          <Link to="/" className="nav__logo" aria-label="MOTO HUB home"><Logo /></Link>
+        ) : (
+          <a href="#home" className="nav__logo" aria-label="MOTO HUB home" onClick={(e) => go(e, 'home')}>
+            <Logo />
+          </a>
+        )}
 
         <ul className={`nav__menu${open ? ' is-open' : ''}`}>
           {LINKS.map(({ id, label }) => (
             <li key={id}>
-              <a href={`#${id}`} className={`nav__link${active === id ? ' is-active' : ''}`} onClick={(e) => go(e, id)}>
-                {label}
-              </a>
+              {link(id, label, `nav__link${!inner && active === id ? ' is-active' : ''}`)}
             </li>
           ))}
           <li className="nav__menu-cta">
-            <a href="#featured" className="btn btn--primary btn--sm" onClick={(e) => go(e, 'featured')}>Shop Now</a>
+            {link('featured', 'Shop Now', 'btn btn--primary btn--sm')}
           </li>
         </ul>
 
-        <a href="#featured" className="btn btn--primary btn--sm nav__shop-btn" onClick={(e) => go(e, 'featured')}>Shop Now</a>
+        {link('featured', 'Shop Now', 'btn btn--primary btn--sm nav__shop-btn')}
 
         <button
           className={`nav__toggle${open ? ' is-active' : ''}`}

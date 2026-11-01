@@ -1,52 +1,14 @@
 import { scrollToId } from './util'
+import { CAT_FALLBACK } from '../../lib'
+import FramedImage from '../shared/FramedImage'
+
+const DEFAULT_DESC = 'Hand-picked selection from MOTO HUB — ask us for the latest arrivals.'
 
 /*
- * Static 5-category section (design copy, intentionally NOT loaded from Supabase).
- * Images are served from /public/img/categories/.
+ * Category cards loaded from Supabase (categories hidden in the dashboard are not shown).
+ * "Explore" applies the matching product filter and scrolls to the Featured Products section.
  */
-const CATEGORIES = [
-  {
-    slug: 'motorcycles',
-    name: 'Motorcycles',
-    desc: 'Track-bred racing bikes and street rockets with uncompromising performance.',
-    img: '/img/categories/motorcycles.jpg',
-    alt: 'Red racing sport motorcycle in a dark garage',
-  },
-  {
-    slug: 'atv',
-    name: 'ATV',
-    desc: 'Quad bikes built to dominate dunes, trails and mud.',
-    img: '/img/categories/atv.jpg',
-    alt: 'Orange quad ATVs standing in the open desert',
-  },
-  {
-    slug: 'utv',
-    name: 'UTV',
-    desc: 'Side-by-side machines with serious power for work and wild terrain.',
-    img: '/img/categories/utv.jpg',
-    alt: 'Black UTV side-by-side vehicle with aggressive off-road tires',
-  },
-  {
-    slug: 'marine',
-    name: 'Marine',
-    desc: 'High-performance jet skis and watercraft for thrill-seekers on the water.',
-    img: '/img/categories/marine.jpg',
-    alt: 'Rider carving waves on a red and white jet ski',
-  },
-  {
-    slug: 'parts',
-    name: 'Accessories & Spare Parts',
-    desc: 'Genuine OEM and racing-grade components to keep every machine at peak power.',
-    img: '/img/categories/parts.jpg',
-    alt: 'Close-up of engine belts, pulleys and spare parts',
-  },
-]
-
-/*
- * Category cards. "Explore" applies the matching product filter and
- * scrolls to the Featured Products section.
- */
-export default function HomeCategories({ onExplore }) {
+export default function HomeCategories({ categories, onExplore }) {
   function explore(e, slug) {
     e.preventDefault()
     onExplore(slug)
@@ -65,15 +27,19 @@ export default function HomeCategories({ onExplore }) {
         </header>
 
         <div className="categories__grid">
-          {CATEGORIES.map((c, i) => (
-            <article className="cat-card" data-reveal data-reveal-delay={i % 3} key={c.slug}>
+          {categories.map((c, i) => (
+            <article className="cat-card" data-reveal data-reveal-delay={i % 3} key={c.id}>
               <figure className="cat-card__media">
-                <img src={c.img} alt={c.alt} loading="lazy" width="900" height="1100" />
+                <FramedImage
+                  src={c.image || CAT_FALLBACK[c.slug]}
+                  style={{ fit: 'cover', ...(c.image_style || {}) }}
+                  alt={c.name}
+                />
               </figure>
               <div className="cat-card__overlay" aria-hidden="true" />
               <div className="cat-card__content">
                 <h3>{c.name}</h3>
-                <p>{c.desc}</p>
+                <p>{c.description || DEFAULT_DESC}</p>
                 <a href="#featured" className="btn btn--ghost btn--sm" onClick={(e) => explore(e, c.slug)}>
                   Explore
                 </a>

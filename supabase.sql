@@ -14,3 +14,5 @@ insert into categories(name,slug,image,sort) values
 ('ATV','atv','https://images.unsplash.com/photo-1721343431343-1a0241c07a2f?q=80&w=2070&auto=format&fit=crop',1),
 ('UTV','utv','https://images.unsplash.com/photo-1607020383881-f1f5e0e3383e?q=80&w=2070&auto=format&fit=crop',2),
 ('Marine','marine','https://images.unsplash.com/photo-1464476365993-fd990d712d0c?q=80&w=2070&auto=format&fit=crop',3);
+
+-- NOTE: for an existing database also run supabase-update.sql (adds orders, condition, hidden categories...)

@@ -468,15 +468,14 @@ body.mh-active { scrollbar-color: var(--purple) var(--bg); scrollbar-width: thin
     radial-gradient(ellipse 50% 40% at 85% 15%, rgba(124, 58, 237, 0.12), transparent 65%),
     var(--bg);
 }
-/* 5 cards: 3 on top, 2 centered below (desktop) */
+/* Any number of categories: 3 per row, the last row is centered */
 .categories__grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 28px;
 }
-.categories__grid .cat-card { grid-column: span 2; }
-.categories__grid .cat-card:nth-child(4) { grid-column: 2 / span 2; }
-.categories__grid .cat-card:nth-child(5) { grid-column: 4 / span 2; }
+.categories__grid .cat-card { flex: 0 0 calc((100% - 56px) / 3); }
 
 .cat-card {
   position: relative;
@@ -600,8 +599,9 @@ body.mh-active { scrollbar-color: var(--purple) var(--bg); scrollbar-width: thin
 
 .product-card__media {
   position: relative;
-  height: 210px;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
+  background: #120f1d;
 }
 .product-card__media img {
   width: 100%;
@@ -1072,17 +1072,8 @@ body.mh-active { scrollbar-color: var(--purple) var(--bg); scrollbar-width: thin
   .why__grid { grid-template-columns: repeat(2, 1fr); }
   .footer__grid { grid-template-columns: 1fr 1fr; }
 
-  /* Categories: 2 columns, last card centered */
-  .categories__grid { grid-template-columns: repeat(2, 1fr); }
-  .categories__grid .cat-card,
-  .categories__grid .cat-card:nth-child(4),
-  .categories__grid .cat-card:nth-child(5) { grid-column: auto; }
-  .categories__grid .cat-card:nth-child(5) {
-    grid-column: 1 / -1;
-    max-width: calc(50% - 14px);
-    margin: 0 auto;
-    width: 100%;
-  }
+  /* Categories: 2 per row, last row centered */
+  .categories__grid .cat-card { flex: 0 0 calc((100% - 28px) / 2); }
 
   .about__inner { gap: 44px; }
 }
@@ -1128,14 +1119,8 @@ body.mh-active { scrollbar-color: var(--purple) var(--bg); scrollbar-width: thin
   .hero__badge { left: 10px; }
   .hero__scroll { display: none; }
 
-  .categories__grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
-  .categories__grid .cat-card,
-  .categories__grid .cat-card:nth-child(4),
-  .categories__grid .cat-card:nth-child(5) {
-    grid-column: auto;
-    max-width: none;
-    margin: 0;
-  }
+  .categories__grid { max-width: 480px; margin: 0 auto; }
+  .categories__grid .cat-card { flex: 0 0 100%; }
   .cat-card { height: 400px; }
 
   .about__inner { grid-template-columns: 1fr; }

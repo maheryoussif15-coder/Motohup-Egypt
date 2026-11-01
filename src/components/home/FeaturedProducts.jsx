@@ -1,34 +1,27 @@
-import { Link } from 'react-router-dom'
-import { wa } from '../../lib'
-import { WhatsIcon } from './icons'
+import { useState } from 'react'
+import ProductCard from '../shared/ProductCard'
+import useReveal from './useReveal'
 
-/* Gray placeholder for products without an image yet */
-const PLACEHOLDER =
-  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="700" height="500"><rect width="100%25" height="100%25" fill="%23181623"/><text x="50%25" y="50%25" fill="%238E88A6" font-family="sans-serif" font-size="24" text-anchor="middle" dominant-baseline="middle">No photo</text></svg>'
-
-/* Static category filter chips (matches the 5 fixed categories) */
-const FILTERS = [
-  { slug: 'all', label: 'All' },
-  { slug: 'motorcycles', label: 'Motorcycles' },
-  { slug: 'atv', label: 'ATV' },
-  { slug: 'utv', label: 'UTV' },
-  { slug: 'marine', label: 'Marine' },
-  { slug: 'parts', label: 'Accessories & Parts' },
+const CONDITION_FILTERS = [
+  { key: 'all', label: 'New & Used' },
+  { key: 'new', label: 'New' },
+  { key: 'used', label: 'Used' },
 ]
 
 /*
- * Featured products grid rendered from the Supabase products table,
- * with a static category filter controlled from Home.jsx.
- * Every card carries an "Ask on WhatsApp" inquiry button.
+ * Featured products grid rendered from Supabase.
+ * Category chips come from the categories table (hidden ones never show up);
+ * the New / Used switch filters by the product condition set in the dashboard.
  */
-export default function FeaturedProducts({ products, filter, onFilter }) {
-  const visible = filter === 'all'
-    ? products
-    : products.filter((p) => p.categories?.slug === filter)
+export default function FeaturedProducts({ products, categories, filter, onFilter }) {
+  const [cond, setCond] = useState('all')
+  // cards that appear after switching New / Used must be revealed too
+  useReveal([products, categories, filter, cond])
 
-  const emptyText = !products.length
-    ? 'Products coming soon.'
-    : 'No products in this category yet.'
+  const byCategory = filter === 'all' ? products : products.filter((p) => p.categories?.slug === filter)
+  const visible = cond === 'all' ? byCategory : byCategory.filter((p) => (p.condition || 'new') === cond)
+
+  const emptyText = !products.length ? 'Products coming soon.' : 'No products match this filter yet.'
 
   return (
     <section className="section featured" id="featured">
@@ -36,50 +29,41 @@ export default function FeaturedProducts({ products, filter, onFilter }) {
         <header className="section__head" data-reveal>
           <p className="section__eyebrow">Top Machines &amp; Components</p>
           <h2 className="section__title">Featured <span className="text-gradient">Products</span></h2>
-          <p className="section__desc">A curated mix of our most demanded bikes, ATVs and spare parts.</p>
+          <p className="section__desc">A curated mix of our most demanded vehicles, gear and spare parts.</p>
         </header>
 
-        {/* Category filter (All + the 5 fixed categories) */}
         <div className="filter" role="group" aria-label="Filter products by category" data-reveal>
-          {FILTERS.map((f) => (
+          <button type="button" className={`filter__btn${filter === 'all' ? ' is-active' : ''}`} onClick={() => onFilter('all')}>
+            All
+          </button>
+          {categories.map((c) => (
             <button
-              key={f.slug}
+              key={c.id}
               type="button"
-              className={`filter__btn${filter === f.slug ? ' is-active' : ''}`}
-              onClick={() => onFilter(f.slug)}
+              className={`filter__btn${filter === c.slug ? ' is-active' : ''}`}
+              onClick={() => onFilter(c.slug)}
             >
-              {f.label}
+              {c.name}
+            </button>
+          ))}
+        </div>
+
+        <div className="seg" role="group" aria-label="Filter by condition" data-reveal>
+          {CONDITION_FILTERS.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              className={`seg__btn${cond === c.key ? ' is-active' : ''}`}
+              onClick={() => setCond(c.key)}
+            >
+              {c.label}
             </button>
           ))}
         </div>
 
         {visible.length ? (
           <div className="products-grid">
-            {visible.map((p, i) => (
-              <article className="product-card is-popping" data-category={p.categories?.slug} data-reveal data-reveal-delay={i % 4} key={p.id}>
-                <Link to={`/p/${p.id}`} className="product-card__link product-card__link--media"><figure className="product-card__media">
-                  <img src={p.images?.[0] || PLACEHOLDER} alt={p.name} loading="lazy" width="700" height="500" />
-                  <span className="product-card__tag">{p.categories?.name || 'Product'}</span>
-                </figure></Link>
-                <div className="product-card__body">
-                  <h3><Link to={`/p/${p.id}`} className="product-card__link">{p.name}</Link></h3>
-                  <p className="product-card__spec">{(p.specs || '').split('\n')[0] || ''}</p>
-                  <div className="product-card__foot">
-                    <span className="product-card__price">{p.price || ''}</span>
-                    <a
-                      className="wa-btn"
-                      href={wa(`Hello MOTO HUB, I am interested in the product: ${p.name}. Is it available?`)}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`Ask about ${p.name} on WhatsApp`}
-                    >
-                      <WhatsIcon size={16} />
-                      Ask on WhatsApp
-                    </a>
-                  </div>
-                </div>
-              </article>
-            ))}
+            {visible.map((p, i) => <ProductCard key={p.id} p={p} index={i} />)}
           </div>
         ) : (
           <p className="filter-empty" data-reveal>{emptyText}</p>
