@@ -1,0 +1,14 @@
+{
+  "name": "bulk-zone-store",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Arabic supplement store with admin dashboard, orders, coupons, SQLite and Neon PostgreSQL support",
+  "scripts": { "start": "node server.js", "dev": "node --watch server.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@libsql/client": "^0.15.15",
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
+  }
+}
+
