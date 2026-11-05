@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+outputs/
+data/
+node_modules/
+.vercel/
+.DS_Store
