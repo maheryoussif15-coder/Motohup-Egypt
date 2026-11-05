@@ -205,7 +205,7 @@ app.put('/api/admin/settings',admin,async(req,res)=>{try{const fields={store_nam
 app.get('/api/health',async(req,res)=>{try{await get('SELECT 1 AS ok');res.json({ok:true,database:isTurso?'turso':isPg?'postgres':'sqlite'})}catch(e){res.status(503).json({ok:false,error:'database unavailable'})}});
 app.use('/data',(_req,res)=>res.sendStatus(404));
 app.get('/assets/bulk-zone-logo.jpeg',(_req,res)=>{try{const packed=fs.readFileSync(path.join(ROOT,'public','assets','bulk-zone-logo.jpeg.b64'),'utf8').trim();res.type('image/jpeg').send(Buffer.from(packed,'base64'))}catch{res.sendStatus(404)}});
-app.use(express.static(ROOT,{extensions:['html'],index:'index.html',dotfiles:'ignore'}));
+app.use(express.static(path.join(ROOT,'public'),{extensions:['html'],index:'index.html',dotfiles:'ignore'}));
 app.use((err,req,res,next)=>{console.error(err);res.status(413).json({error:'حجم الطلب أكبر من المسموح'})});
 
 if (process.env.VERCEL) {
