@@ -1,0 +1,13 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#09090b"><title>لوحة Bulk Zone</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="admin.css"><script src="admin.js" defer></script></head><body class="adminBody">
+<header class="header"><div class="container nav adminNav"><a class="brand" href="/"><img src="assets/bulk-zone-logo.jpeg" alt="Bulk Zone"><span class="brandword"><b>BULK</b> ZONE<small>STORE CONTROL</small></span></a><span>لوحة إدارة المتجر</span><button class="smallBtn" id="logout" hidden>تسجيل الخروج</button></div></header>
+<main class="container adminMain">
+  <section class="loginCard" id="loginCard"><span class="kicker">BULK ZONE / ADMIN</span><h1>تسجيل الدخول</h1><p>لوحة التحكم خاصة بصاحب المتجر.</p><form id="loginForm"><label>كلمة المرور<input type="password" name="password" autocomplete="current-password" required></label><button class="btn primary full">دخول لوحة التحكم</button><small id="loginError"></small></form></section>
+  <section id="dashboard" hidden>
+    <div class="adminTitle"><div><span class="kicker">STORE CONTROL CENTER</span><h1>إدارة المتجر</h1><p>تحكم في المحتوى والمنتجات وتابع الأوردرات.</p></div><a class="btn outline" href="/" target="_blank">عرض المتجر ↗</a></div>
+    <div class="stats" id="stats"></div>
+    <nav class="tabs" id="tabs"><button class="tab active" data-tab="orders">الأوردرات</button><button class="tab" data-tab="shipping">الشحن والمحافظات</button><button class="tab" data-tab="products">المنتجات</button><button class="tab" data-tab="categories">الأقسام</button><button class="tab" data-tab="promos">شريط العروض</button><button class="tab" data-tab="coupons">أكواد الخصم</button><button class="tab" data-tab="guides">دليل المكملات</button><button class="tab" data-tab="settings">إعدادات المتجر</button></nav>
+    <div id="panel"></div>
+  </section>
+</main>
+<div class="modalWrap" id="editModal"><div class="modal adminEdit"><button class="close modalClose" id="closeEdit">×</button><div id="editBody"></div></div></div><div class="toast" id="toast"></div></body></html>
+
