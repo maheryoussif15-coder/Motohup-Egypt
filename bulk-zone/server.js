@@ -77,7 +77,19 @@ async function initDb() {
     const govs = ['القاهرة','الجيزة','الإسكندرية','القليوبية','الشرقية','الدقهلية','الغربية','المنوفية','البحيرة','كفر الشيخ','دمياط','بورسعيد','الإسماعيلية','السويس','شمال سيناء','جنوب سيناء','الفيوم','بني سويف','المنيا','أسيوط','سوهاج','قنا','الأقصر','أسوان','البحر الأحمر','الوادي الجديد','مطروح'];
     for (let i = 0; i < govs.length; i++) await run('INSERT INTO shipping_zones(name,price,active,sort_order) VALUES(?,?,1,?)', [govs[i], 0, i + 1]);
   }
-  if (Number((await get('SELECT COUNT(*) AS n FROM categories')).n) > 0) return;
+  if (Number((await get('SELECT COUNT(*) AS n FROM categories')).n) > 0) {
+    const extraCategories = [
+      ['الجينر','مكملات الكربوهيدرات وزيادة السعرات.','',1,5],
+      ['الأحماض الأمينية','جلوتامين وأحماض أمينية ومكملات الأداء.','',1,6],
+      ['حرق الدهون','منتجات مخصصة للتحكم بالوزن.','',1,7],
+      ['الصحة العامة','مكملات الفيتامينات والمعادن والصحة العامة.','',1,8]
+    ];
+    for (const c of extraCategories) {
+      if (!(await get('SELECT id FROM categories WHERE name=?',[c[0]]))) await run('INSERT INTO categories(name,description,image,active,sort_order) VALUES(?,?,?,?,?)',c);
+    }
+    await seedSupplementCatalog();
+    return;
+  }
   const catSeeds = [
     ['البروتين','منتجات البروتين لدعم احتياجك اليومي والتعافي.','https://images.unsplash.com/photo-1593095948071-474c5cc2989d?auto=format&fit=crop&w=900&q=80',1,1],
     ['الكرياتين','مكملات الكرياتين لتمارين القوة عالية الشدة.','https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&w=900&q=80',1,2],
@@ -85,6 +97,12 @@ async function initDb() {
     ['الفيتامينات والصحة','مكملات غذائية عامة للاستخدام حسب الحاجة.','https://images.unsplash.com/photo-1550572017-edd951b55104?auto=format&fit=crop&w=900&q=80',1,4]
   ];
   for (const x of catSeeds) await run('INSERT INTO categories(name,description,image,active,sort_order) VALUES(?,?,?,?,?)', x);
+  for (const c of [
+    ['الجينر','مكملات الكربوهيدرات وزيادة السعرات.','',1,5],
+    ['الأحماض الأمينية','جلوتامين وأحماض أمينية ومكملات الأداء.','',1,6],
+    ['حرق الدهون','منتجات مخصصة للتحكم بالوزن.','',1,7],
+    ['الصحة العامة','مكملات الفيتامينات والمعادن والصحة العامة.','',1,8]
+  ]) await run('INSERT INTO categories(name,description,image,active,sort_order) VALUES(?,?,?,?,?)',c);
   const cats = await all('SELECT id,name FROM categories');
   const cid = name => cats.find(c => c.name === name).id;
   const prod = [
@@ -108,8 +126,76 @@ async function initDb() {
     ['أوميجا 3','أحماض دهنية توجد في الأسماك وبعض المكملات.','تحقق من محتوى EPA وDHA. قد تتداخل مكملات أوميجا 3 مع بعض الأدوية؛ ناقشها مع الطبيب أو الصيدلي.','https://ods.od.nih.gov/factsheets/Omega3FattyAcids-Consumer/']
   ];
   for (let i=0;i<guideSeeds.length;i++) await run('INSERT INTO guides(title,summary,body,source_url,active,sort_order) VALUES(?,?,?,?,1,?)',[...guideSeeds[i],i+1]);
+  await seedSupplementCatalog();
   const initialSettings=[['store_name',process.env.STORE_NAME||'Bulk Zone'],['whatsapp',process.env.WHATSAPP_NUMBER||''],['contact',''],['logo','assets/bulk-zone-logo.jpeg']];
   for(const [k,v] of initialSettings)await run('INSERT INTO settings(key,value) VALUES(?,?)',[k,v]);
+}
+
+async function seedSupplementCatalog() {
+  const cats = await all('SELECT id,name FROM categories');
+  const category = names => cats.find(c => names.some(n => c.name.toLowerCase().includes(n.toLowerCase())))?.id ?? null;
+  const protein=category(['البروتين']), creatine=category(['الكرياتين']), performance=category(['الطاقة والأداء']), health=category(['الصحة العامة']), amino=category(['الأحماض الأمينية']), gainer=category(['الجينر']), burner=category(['حرق الدهون']);
+  const rows = [
+    ['Hydro Whey Mango 2.27kg','Hydro Whey · Mango · 2.27 kg',protein,'hydro-whey-mango-2270g.jpg'],
+    ['Kevin Levrone Anabolic Iso Whey','Whey isolate + creatine + BCAA',protein,'kevin-levrone-anabolic-iso-whey.jpg'],
+    ['FA Gold Whey Isolate 2kg','Whey protein isolate · 2 kg',protein,'fa-gold-whey-isolate-2kg.jpg'],
+    ['Tractor Carb Lemon Mint','Carbohydrate powder · Lemon Mint',gainer,'tractor-carb-lemon-mint.jpg'],
+    ['MuscleSeeds Creatine 300g','Creatine monohydrate · Unflavored · 300 g',creatine,'muscleseeds-creatine-unflavored-300g.jpg'],
+    ['Cloma Black Spider 25','Ephedra capsules · 100 capsules',burner,'cloma-black-spider-ephedra.jpg'],
+    ['Yava Labs Multivitamin','Multivitamin · 60 capsules',health,'yava-multivitamin-60caps.jpg'],
+    ['CLA + Carnitine','CLA + Carnitine · 50 servings',burner,'cla-carnitine.jpg'],
+    ['Crea Legend 200g','Creatine supplement · 200 g',creatine,'crea-legend-creatine-200g.jpg'],
+    ['Mass Gainer Red 7kg','Mass gainer · 7 kg',gainer,'mass-gainer-red-bag-7kg.jpg'],
+    ['Nutrex Lipo 6 Black Ultra','Thermogenic capsules · 60 capsules',burner,'nutrex-lipo6-black-ultra.jpg'],
+    ['Farah GainSecret 5kg','Mass gainer · Chocolate · 5 kg',gainer,'farah-gainsecret-5kg.jpg'],
+    ['Kevin Levrone Anabolic Creatine 300g','Creatine · 300 g',creatine,'kevin-levrone-anabolic-creatine-300g.jpg'],
+    ['DY Creatine Monohydrate 300g','Creatine monohydrate · 300 g',creatine,'dy-creatine-monohydrate-300g.jpg'],
+    ['Kevin Levrone Gold Creatine 300g','Creatine monohydrate · 300 g',creatine,'kevin-levrone-gold-creatine-300g.jpg'],
+    ['Premium Pre-Hell','Pre-workout · 30 servings',performance,'premium-pre-hell.jpg'],
+    ['Whey 100 Red White','Whey protein · 1 kg',protein,'whey-100-red-white.jpg'],
+    ['MuscleSeeds Vitamin C 1000','Vitamin C · 100 coated tablets',health,'muscleseeds-vitamin-c1000.jpg'],
+    ['Mavfit Carbofit Berry','Carbohydrate supplement',gainer,'mavfit-carbofit-berry.jpg'],
+    ['Yava Labs Omega 3','Omega 3 · 90 capsules',health,'yava-omega-3-90caps.jpg'],
+    ['Kevin Levrone Anabolic Glutamine 200g','Glutamine · 200 g',amino,'kevin-levrone-anabolic-glutamine-200g.jpg'],
+    ['14 Joint Guard','Joint support · 90 capsules',health,'14-joint-guard-90caps.jpg'],
+    ['Farah AAKG 300g','Arginine Alpha Ketoglutarate · 300 g',amino,'farah-aakg-300g.jpg'],
+    ['14 Creatine Orange 500g','Creatine monohydrate · Orange · 500 g',creatine,'14-creatine-orange-500g.jpg'],
+    ['Nutrabolics Mass Fusion 5.44kg','Mass gainer · 5.44 kg',gainer,'nutrabolics-mass-fusion-5440g.jpg'],
+    ['Kevin Levrone Gold Whey','Whey protein concentrate',protein,'kevin-levrone-gold-whey.jpg'],
+    ['Red Mass Gainer 500g','Mass gainer',gainer,'red-mass-gainer-500g.jpg'],
+    ['Pure Gavic Creatine 500g','Creatine monohydrate · 500 g',creatine,'pure-gavic-creatine-500g.jpg'],
+    ['Skull Labs Ripped Mass 3kg','Mass gainer · 3 kg',gainer,'skull-labs-ripped-mass-3kg.jpg'],
+    ['Redcon1 Total War','Pre-workout · 30 servings',performance,'redcon1-total-war-preworkout.jpg'],
+    ['The Curse Pre-workout','Pre-workout · Fruit punch · 50 servings',performance,'the-curse-preworkout.jpg'],
+    ['NPP Ultra Mass','Mass gainer',gainer,'npp-ultra-mass.jpg'],
+    ['ResultMeds Magnesium Complex','Magnesium complex',health,'resultmeds-magnesium-complex.jpg'],
+    ['Thor Amino Complex','Amino acid complex · 30 servings',amino,'thor-amino-complex.jpg'],
+    ['Yava Labs Creatine 300g','Creatine monohydrate · 300 g',creatine,'yava-creatine-300g.jpg'],
+    ['Muscletech Hydroxycut Hardcore Elite','Thermogenic capsules · 110 capsules',burner,'muscletech-hydroxycut-hardcore.jpg'],
+    ['Azgard Creatine Nano 300g','Creatine monohydrate · 300 g',creatine,'azgard-creatine-nano-300g.jpg'],
+    ['14 Hyper Rush','Pre-workout · 40 servings',performance,'14-hyper-rush-preworkout.jpg'],
+    ['Dragon L-Glutamine 500g','L-Glutamine · 500 g',amino,'dragon-glutamine-500g.jpg'],
+    ['DY Hood & Guts','Pre-workout · Pear Kiwi · 380 g',performance,'dy-hood-guts-preworkout.jpg'],
+    ['Scitec Jumbo Gainer','Mass gainer · Vanilla',gainer,'scitec-jumbo-gainer.jpg'],
+    ['Maxfit Carbofit','Carbohydrate supplement · Blueberry',gainer,'maxfit-carbofit.jpg'],
+    ['MuscleSeeds Zinc & Copper','Zinc and copper supplement',health,'muscleseeds-zinc-copper.jpg'],
+    ['Tractor Twin Turbo','Pre-workout · Mango',performance,'tractor-twin-turbo-preworkout.jpg']
+  ];
+  const categoryPrices = new Map([[protein,2200],[creatine,850],[performance,1100],[health,450],[amino,650],[gainer,1800],[burner,950]]);
+  const categoryCounts = new Map();
+  for (let i=0;i<rows.length;i++) {
+    const [name,subtitle,categoryId,file]=rows[i], image=`assets/products/${file}`;
+    const count=categoryCounts.get(categoryId)||0; categoryCounts.set(categoryId,count+1);
+    const price=(categoryPrices.get(categoryId)||600)+(count%4)*150;
+    const existing=await get('SELECT id,price FROM products WHERE name=? OR image=?',[name,image]);
+    if (existing) {
+      if (!Number(existing.price)) await run('UPDATE products SET price=? WHERE id=?',[price,existing.id]);
+      continue;
+    }
+    await run('INSERT INTO products(name,subtitle,category_id,image,price,old_price,badge,rating,description,benefits,how_to_use,warnings,sizes,flavors,active,featured,sort_order) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[
+      name,subtitle,categoryId,image,price,null,'','★★★★★',subtitle,'راجع ملصق العبوة لمعرفة المكونات والمعلومات الخاصة بالمنتج.','اتبع تعليمات الاستخدام المطبوعة على عبوة المنتج.','استشر طبيباً أو صيدلياً عند وجود حالة صحية أو أدوية منتظمة.','[]','[]',1,0,100+i
+    ]);
+  }
 }
 
 const dbReady = initDb();
@@ -169,7 +255,7 @@ app.post('/api/orders',async(req,res)=>{
     let c=null;const code=cleanText(req.body.couponCode,40).toUpperCase();if(code){c=await get('SELECT * FROM coupons WHERE UPPER(code)=?',[code]);if(!couponLive(c))return res.status(400).json({error:'كود الخصم غير صالح'});if(subtotal<Number(c.minimum_total||0))return res.status(400).json({error:`الحد الأدنى للطلب ${c.minimum_total} ج.م`});}
     const discount=couponDiscount(c,subtotal);
     const zones=await all('SELECT * FROM shipping_zones WHERE active=1');let zone=null;
-    zone=zones.find(z=>z.name===gov);if(!zone)return res.status(400).json({error:'اختار محافظة متاحة'});
+    if(zones.length){zone=zones.find(z=>z.name===gov);if(!zone)return res.status(400).json({error:'اختار المحافظة'});}
     const shipping=zone?Math.max(0,Number(zone.price)||0):0,total=subtotal-discount+shipping;
     const result=await run('INSERT INTO orders(customer_name,phone,address,notes,items,subtotal,discount,total,coupon_code,status,created_at,governorate,shipping) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',[name,phone,address,notes,JSON.stringify(items),subtotal,discount,total,c?.code||'','new',new Date().toISOString(),zone?zone.name:'',shipping]);
     if(c)await run('UPDATE coupons SET uses=uses+1 WHERE id=?',[c.id]);
@@ -204,7 +290,6 @@ app.patch('/api/admin/orders/:id',admin,async(req,res)=>{const allowed=['new','c
 app.put('/api/admin/settings',admin,async(req,res)=>{try{const fields={store_name:cleanText(req.body.store_name,120),whatsapp:cleanText(req.body.whatsapp,30).replace(/[^0-9]/g,''),contact:cleanText(req.body.contact,200),logo:req.body.logo||'assets/bulk-zone-logo.jpeg'};if(fields.logo&&!validImage(fields.logo)&&!fields.logo.startsWith('assets/'))return res.status(400).json({error:'صيغة الشعار غير صالحة'});for(const [k,v]of Object.entries(fields)){const old=await get('SELECT key FROM settings WHERE key=?',[k]);if(old)await run('UPDATE settings SET value=? WHERE key=?',[v,k]);else await run('INSERT INTO settings(key,value) VALUES(?,?)',[k,v])}res.json({ok:true})}catch(e){console.error(e);res.status(400).json({error:e.message||'تعذر الحفظ'})}});
 app.get('/api/health',async(req,res)=>{try{await get('SELECT 1 AS ok');res.json({ok:true,database:isTurso?'turso':isPg?'postgres':'sqlite'})}catch(e){res.status(503).json({ok:false,error:'database unavailable'})}});
 app.use('/data',(_req,res)=>res.sendStatus(404));
-app.get('/assets/bulk-zone-logo.jpeg',(_req,res)=>{try{const packed=fs.readFileSync(path.join(ROOT,'public','assets','bulk-zone-logo.jpeg.b64'),'utf8').trim();res.type('image/jpeg').send(Buffer.from(packed,'base64'))}catch{res.sendStatus(404)}});
 app.use(express.static(path.join(ROOT,'public'),{extensions:['html'],index:'index.html',dotfiles:'ignore'}));
 app.use((err,req,res,next)=>{console.error(err);res.status(413).json({error:'حجم الطلب أكبر من المسموح'})});
 
