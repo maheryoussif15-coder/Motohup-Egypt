@@ -181,6 +181,8 @@ async function seedSupplementCatalog() {
     ['MuscleSeeds Zinc & Copper','Zinc and copper supplement',health,'muscleseeds-zinc-copper.jpg'],
     ['Tractor Twin Turbo','Pre-workout · Mango',performance,'tractor-twin-turbo-preworkout.jpg']
   ];
+  const imageMigrationKey='supplement_catalog_images_v1';
+  const shouldMigrateImages=!(await get('SELECT value FROM settings WHERE key=?',[imageMigrationKey]));
   const categoryPrices = new Map([[protein,2200],[creatine,850],[performance,1100],[health,450],[amino,650],[gainer,1800],[burner,950]]);
   const categoryCounts = new Map();
   for (let i=0;i<rows.length;i++) {
@@ -190,12 +192,14 @@ async function seedSupplementCatalog() {
     const existing=await get('SELECT id,price FROM products WHERE name=? OR image=?',[name,image]);
     if (existing) {
       if (!Number(existing.price)) await run('UPDATE products SET price=? WHERE id=?',[price,existing.id]);
+      if (shouldMigrateImages) await run('UPDATE products SET image=? WHERE id=?',[image,existing.id]);
       continue;
     }
     await run('INSERT INTO products(name,subtitle,category_id,image,price,old_price,badge,rating,description,benefits,how_to_use,warnings,sizes,flavors,active,featured,sort_order) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[
       name,subtitle,categoryId,image,price,null,'','★★★★★',subtitle,'راجع ملصق العبوة لمعرفة المكونات والمعلومات الخاصة بالمنتج.','اتبع تعليمات الاستخدام المطبوعة على عبوة المنتج.','استشر طبيباً أو صيدلياً عند وجود حالة صحية أو أدوية منتظمة.','[]','[]',1,0,100+i
     ]);
   }
+  if (shouldMigrateImages) await run('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO NOTHING',[imageMigrationKey,'done']);
 }
 
 let dbDiagnostic={category:'initializing',code:'PENDING'};
