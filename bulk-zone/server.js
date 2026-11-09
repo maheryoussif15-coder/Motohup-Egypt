@@ -183,6 +183,11 @@ async function seedSupplementCatalog() {
   ];
   const imageMigrationKey='supplement_catalog_images_v1';
   const shouldMigrateImages=!(await get('SELECT value FROM settings WHERE key=?',[imageMigrationKey]));
+  const sectionMigrationKey='supplement_catalog_sections_v1';
+  const shouldActivateSections=!(await get('SELECT value FROM settings WHERE key=?',[sectionMigrationKey]));
+  if (shouldActivateSections) {
+    for (const id of [protein,creatine,performance].filter(Boolean)) await run('UPDATE categories SET active=1 WHERE id=?',[id]);
+  }
   const categoryPrices = new Map([[protein,2200],[creatine,850],[performance,1100],[health,450],[amino,650],[gainer,1800],[burner,950]]);
   const categoryCounts = new Map();
   for (let i=0;i<rows.length;i++) {
@@ -200,6 +205,7 @@ async function seedSupplementCatalog() {
     ]);
   }
   if (shouldMigrateImages) await run('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO NOTHING',[imageMigrationKey,'done']);
+  if (shouldActivateSections) await run('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO NOTHING',[sectionMigrationKey,'done']);
 }
 
 let dbDiagnostic={category:'initializing',code:'PENDING'};
