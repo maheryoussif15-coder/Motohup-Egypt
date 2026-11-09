@@ -198,13 +198,28 @@ async function seedSupplementCatalog() {
   }
 }
 
-const dbReady = initDb();
+let dbDiagnostic={category:'initializing',code:'PENDING'};
+function describeDatabaseFailure(error) {
+  const message=String(error?.message||'').toLowerCase();
+  const code=String(error?.code||'');
+  let category='unknown';
+  if (/auth|token|unauthor|credential/.test(message)) category='credentials';
+  else if (/connect|timeout|socket|dns|network|fetch/.test(message)) category='connection';
+  else if (/eacces|eperm|read.only|readonly|cantopen/.test(message)) category='storage';
+  else if (/no such table|syntax|constraint|column|schema/.test(message)) category='schema';
+  return {category,code:/^[A-Z0-9_]{1,32}$/.test(code)?code:'UNCLASSIFIED'};
+}
+const dbReady = initDb().catch(error=>{dbDiagnostic=describeDatabaseFailure(error);throw error;});
 const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '7mb' }));
 app.use(async (_req,res,next)=>{
   try { await dbReady; next(); }
-  catch (e) { console.error('Database setup failed:',e.message); res.status(503).json({error:'قاعدة البيانات غير متاحة حالياً'}); }
+  catch (e) {
+    console.error('Database setup failed:',e.message);
+    if (_req.path==='/api/health') return res.status(503).json({ok:false,error:'database unavailable',diagnostic:dbDiagnostic});
+    res.status(503).json({error:'قاعدة البيانات غير متاحة حالياً'});
+  }
 });
 const cookieName = 'bulkzone_admin';
 const loginAttempts = new Map();
