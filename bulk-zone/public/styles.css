@@ -4,3 +4,5 @@
 #checkoutForm select{display:block;width:100%;margin-top:5px;padding:10px 11px;background:#202024;border:1px solid #3c3c42;color:#fff;border-radius:5px;font:inherit}
 .prodimg{height:auto;aspect-ratio:4/3}.product:hover .prodimg img{transform:none}
 
+
+.product.reveal{opacity:0;transform:translateY(22px);transition:opacity .45s ease,transform .45s ease}.product.reveal.revealed{opacity:1;transform:translateY(0)}.checkoutCoupon{margin:10px 0}.checkoutCoupon>label{font-size:10px;display:block;margin-bottom:5px}.checkoutCoupon>div{display:flex;gap:7px}.checkoutCoupon input{flex:1;min-width:0}.checkoutCoupon button{margin-top:4px;padding:0 13px;border:1px solid #45454b;border-radius:5px;background:#252529;color:#fff}.checkoutCoupon small{display:block;min-height:1em;margin-top:4px;color:#aaa;font-size:9px}@media(prefers-reduced-motion:reduce){.product.reveal{transition:none;transform:none}}
